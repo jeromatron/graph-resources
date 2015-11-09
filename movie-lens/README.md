@@ -20,16 +20,7 @@ unzip ml-1m.zip
 cd $OLDPWD
 ```
 
-start the gremlin shell
-
-```
-:load MovieLensParser.groovy
-graph = TinkerGraph.open()
-MovieLensParser.load(graph, '/tmp/ml-1m')
-graph.io(IoCore.gryo()).writeGraph("/tmp/movie-lens.kryo")
-```
-
-Example execution
+Example execution (in the gremlin shell)
 
 ```
 gremlin> :load MovieLensParser.groovy
