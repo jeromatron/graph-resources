@@ -19,18 +19,8 @@ import org.apache.tinkerpop.gremlin.structure.Vertex
 
 class EnronEmailParser {
     public static void load(Graph graph, String pathToData) {
-        //println "This is the load method."
-        // open up the management system for this Graph instance
-        //def mgmt = graph.openManagement()
-        // creating 'email' vertex type
-        //mgmt.makeVertexLabel('email').make()
-        // creating 'emailed' edge type
-        //mgmt.makeEdgeLabel('emailed').make()
-        // creating key for 'email' vertices
-        //def Id = mgmt.makePropertyKey('emailId').dataType(Integer.class).make()
-        // indexing for Vertex class
-        //mgmt.buildIndex('byId', Vertex.class).addKey(Id).buildCompositeIndex()
-        //mgmt.commit()
+
+        graph.createIndex("emailId", Vertex.class)
 
         // time to load uo the data
         def g = graph.traversal()
@@ -45,7 +35,6 @@ class EnronEmailParser {
             def parts = line.split('\t')
             def source = parts[0].toInteger()
             def target = parts[1].toInteger()
-            //println source
 
             def sourceV = g.V().has('emailId', source).tryNext().orElseGet {
                 graph.addVertex(label, 'email', 'emailId', source)
@@ -54,14 +43,8 @@ class EnronEmailParser {
                 graph.addVertex(label, 'email', 'emailId', target)
             }
 
-            count++
-            if (count % 1000 == 0)
-                println('adding edge ' + count)
-
             sourceV.addEdge('emailed', targetV)
         }
-        println('done loading')
-        graph.tx().commit()
         graph.close()
     }
 }
