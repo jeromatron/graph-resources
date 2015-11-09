@@ -24,8 +24,7 @@ class EnronEmailParser {
 
         // time to load uo the data
         def g = graph.traversal()
-
-        def count = 0
+        
         new File(pathToData).eachLine { def line ->
             if (line.startsWith('#')) {
                 // ignore the comments at beginning of the data file
