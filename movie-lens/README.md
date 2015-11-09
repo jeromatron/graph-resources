@@ -37,6 +37,38 @@ gremlin> graph.io(IoCore.gryo()).writeGraph("/tmp/movie-lens.kryo")
 ==>null
 ```
 
+Now you have a serialized graph in kryo format for repeated use.  You can start the gremlin shell, read the graph, and are ready to play with it.
+
+```
+gremlin> graph = TinkerGraph.open()
+==>tinkergraph[vertices:0 edges:0]
+gremlin> graph.io(gryo()).readGraph('/tmp/movie-lens.kryo')
+==>null
+gremlin> g = graph.traversal()
+==>graphtraversalsource[tinkergraph[vertices:9625 edges:969719], standard]
+gremlin> g.V().count
+No such property: count for class: org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal
+Display stack trace? [yN] 
+gremlin> g.V().count()
+==>9625
+gremlin> g.E().count()
+==>969719
+gremlin> 
+```
+
+Perhaps try to do something like find the average rating for a particular movie:
+
+```
+g.V().has('movie', 'name', 'Toy Story').inE('rated').values('stars').mean()
+
+```
+
+Or get the list of genres:
+
+```
+g.V().hasLabel('genre').valueMap()
+```
+
 References
 ----------
 
