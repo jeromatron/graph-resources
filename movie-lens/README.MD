@@ -9,7 +9,6 @@ Data set
 
 - One million ratings from 6000 users on 4000 movies
 - [http://grouplens.org/datasets/movielens/1m/](http://grouplens.org/datasets/movielens/1m/)  
-- Command: `wget http://files.grouplens.org/datasets/movielens/ml-1m.zip /tmp`
 
 How to run
 ----------
