@@ -8,9 +8,10 @@ import org.apache.tinkerpop.gremlin.structure.Vertex
 class EnronEmailParser {
     public static void load(Graph graph, String pathToData) {
 
+        // An index will help speed the loading time because we search
+        // for the email id on each insert
         graph.createIndex("emailId", Vertex.class)
 
-        // time to load uo the data
         def g = graph.traversal()
 
         new File(pathToData).eachLine { def line ->
@@ -32,8 +33,11 @@ class EnronEmailParser {
 
             sourceV.addEdge('emailed', targetV)
         }
+
+        // If using a graph store that supports transactions (TinkerGraph doesn't)
         if (graph.features().graph().supportsTransactions())
             graph.tx().commit();
+        
         graph.close()
     }
 }
