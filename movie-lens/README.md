@@ -1,5 +1,5 @@
-Movie Lens Playground
-=====================
+Movie Lens
+==========
 
 The movie lens data set will give you ratings that you can import into a graph using the included groovy script.
 The script will need be run through the gremlin shell to import and then serialize to kryo format.

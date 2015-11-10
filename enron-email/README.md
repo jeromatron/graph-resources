@@ -18,7 +18,7 @@ Load the data (in the Gremlin shell)
 
 ```
 gremlin> :load EnronEmailParser.groovy
-==> Lots of classpath stuff
+==>Lots of classpath stuff
 ==>true
 ==>true
 gremlin> graph = TinkerGraph.open()

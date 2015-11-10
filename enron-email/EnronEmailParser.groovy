@@ -37,7 +37,7 @@ class EnronEmailParser {
         // If using a graph store that supports transactions (TinkerGraph doesn't)
         if (graph.features().graph().supportsTransactions())
             graph.tx().commit();
-        
+
         graph.close()
     }
 }
