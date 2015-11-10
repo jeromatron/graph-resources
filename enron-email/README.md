@@ -13,3 +13,20 @@ gzip -d email-Enron.txt.gz
 cd $OLDPWD
 ```
 
+Load the data (in the Gremlin shell)
+------------------------------------
+
+```
+gremlin> :load EnronEmailParser.groovy
+==> Lots of classpath stuff
+==>true
+==>true
+gremlin> graph = TinkerGraph.open()
+==>tinkergraph[vertices:0 edges:0]
+gremlin> EnronEmailParser.load(graph, '/tmp/email-Enron.txt')
+==>null
+gremlin> g = graph.traversal()
+==>graphtraversalsource[tinkergraph[vertices:36692 edges:367662], standard]
+gremlin>
+```
+
