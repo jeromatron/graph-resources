@@ -2,21 +2,9 @@ import org.apache.tinkerpop.gremlin.structure.Graph
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
 /**
- *       script courtesy of Daniel Kuppitz
- *
- *       NOTE: No indexing involved, since this parser is involved purely for
- *             checking reading and writing functionality within Gremlin shell
- *
- *
- *      Pre-condition:  This script assumes all of the backend configuration has been
- *                      properly set up, and stored in a Gremlin shell variable 'conf'
- *                      and graph = TitanFactory.open(conf)
- *
- *
- *      Post-condition: The Enron email data set is loaded into a TitanGraph instance
- *
+ *  Loads the Enron email communications network data set into a Graph instance.
+ *  script courtesy of Daniel Kuppitz
  */
-
 class EnronEmailParser {
     public static void load(Graph graph, String pathToData) {
 
@@ -24,7 +12,7 @@ class EnronEmailParser {
 
         // time to load uo the data
         def g = graph.traversal()
-        
+
         new File(pathToData).eachLine { def line ->
             if (line.startsWith('#')) {
                 // ignore the comments at beginning of the data file
@@ -44,6 +32,8 @@ class EnronEmailParser {
 
             sourceV.addEdge('emailed', targetV)
         }
+        if (graph.features().graph().supportsTransactions())
+            graph.tx().commit();
         graph.close()
     }
 }
