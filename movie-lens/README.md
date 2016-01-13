@@ -29,8 +29,7 @@ gremlin> graph = TinkerGraph.open()
 ==>tinkergraph[vertices:0 edges:0]
 gremlin> MovieLensParser.load(graph, '/tmp/ml-1m')
 Adding occupation vertices...
-Adding genres from movies.dat...
-Adding movies from movies.dat...
+Processing movies.dat...
 Processing users.dat...
 Processing ratings.dat...
 Loading took (ms): 14273
@@ -48,9 +47,6 @@ gremlin> graph.io(gryo()).readGraph('/tmp/movie-lens.kryo')
 ==>null
 gremlin> g = graph.traversal()
 ==>graphtraversalsource[tinkergraph[vertices:9962 edges:1012657], standard]
-gremlin> g.V().count
-No such property: count for class: org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal
-Display stack trace? [yN] 
 gremlin> g.V().count()
 ==>9962
 gremlin> g.E().count()
@@ -71,6 +67,12 @@ Or get the list of genres:
 g.V().hasLabel('genre').valueMap()
 ```
 
+Number of movies in each genre:
+
+```
+g.V().hasLabel('genre').as('a','b').select('a','b').by('name').by(inE('genre').count())
+```
+
 You can see how many of each type of vertex or edge there is:
 
 ```
@@ -78,17 +80,36 @@ g.V().label().groupCount()
 g.E().label().groupCount()
 ```
 
-Number of movies in each genre:
+What's the year of the oldest and most recent movie in the data set?  How many movies are there for each year?
 
 ```
-g.V().hasLabel('genre').as('a','b').select('a','b').by('name').by(inE('genre').count())
+g.V().hasLabel('movie').values('year').min()
+g.V().hasLabel('movie').values('year').max()
+g.V().hasLabel('movie').groupCount().by('year').order(local).by(keyIncr).unfold()
 ```
 
-For programmers that gave Die Hard 5 stars, what are 10 other movies that they gave 5 stars?
+For programmers that gave Die Hard 5 stars, what are the top 10 other movies that they gave 5 stars?
 
 ```
-g.V().has('movie','name','Die Hard').as('a').inE('rated').has('stars',5).outV().where(out('occupation').has('name','programmer')).outE('rated').has('stars',5).inV().where(neq('a')).groupCount().by('name').order(local).by(valueDecr).limit(local,10).unfold()
+g.V().
+has('movie','name','Die Hard').as('a').
+inE('rated').has('stars',5).
+outV().where(out('occupation').has('name','programmer')).
+outE('rated').has('stars',5).
+inV().where(neq('a')).
+groupCount().by('name').
+order(local).by(valueDecr).
+limit(local,10).
+unfold()
 ```
+
+Reading this from the beginning in English:
+
+> Give me all of the vertices with the movie name Die Hard.  Take a look at all those that rated it 5 stars and 
+filter them down by those whose occupation is a programmer.  Take a look at all the movies that those programmers
+rated 5 stars.  Filter out 'a' or 'Die Hard' because we already know they rated that 5 stars.  Count those movies
+they also rated 5 stars, order them by the count highest to lowest, and limit it to the top ten.  Print each of the
+results on their own line.
 
 References
 ----------

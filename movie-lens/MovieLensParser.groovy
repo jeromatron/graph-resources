@@ -24,19 +24,10 @@ class MovieLensParser {
         println "Adding occupation vertices..."
         occupations.each {
             key, value ->
-                graph.addVertex(id, 'o' + key, label, 'occupation', 'name', value)
+                graph.addVertex(label, 'occupation', 'uid', 'o' + key, 'name', value)
         }
 
-        println "Adding genres from movies.dat..."
-        def genres = [] as Set
-        new File(dataDirectory + '/movies.dat').eachLine {
-            it.split("::")[2].split("\\|").each { genres.add(it) }
-        }
-        genres.each {
-            graph.addVertex(label, 'genre', 'name', it)
-        }
-
-        println 'Adding movies from movies.dat...'
+        println 'Processing movies.dat...'
         // MovieID::Title::Genres
         new File(dataDirectory + '/movies.dat').eachLine {
             line ->
@@ -46,9 +37,10 @@ class MovieLensParser {
                 movieTitleYear.find()
                 def movieTitle = movieTitleYear.group(1).trim()
                 def movieYear = movieTitleYear.group(2).toInteger()
-                def movie = graph.addVertex(id, 'm' + movieId, label, 'movie', 'name', movieTitle, 'year', movieYear)
-                components[2].split("\\|").each {
-                    movie.addEdge('genre', g.V().hasLabel('genre').has('name', it).next())
+                def movieVertex = graph.addVertex(label, 'movie', 'uid', 'm' + movieId, 'name', movieTitle, 'year', movieYear)
+                components[2].split("\\|").each { def genre ->
+                    def genreVertex = g.V().has('uid', 'g' + genre).tryNext().orElseGet {graph.addVertex(label, 'genre', 'uid', 'g' + genre, 'name', genre)}
+                    movieVertex.addEdge('genre', genreVertex)
                 }
         }
 
@@ -56,13 +48,15 @@ class MovieLensParser {
         // UserID::Gender::Age::Occupation::Zipcode
         new File(dataDirectory + '/users.dat').eachLine {
             def components = it.split("::")
-            def userId = components[0] as Integer
+            def userId = components[0].toInteger()
             def gender = components[1]
-            def age = components[2] as Integer
-            def occupationId = components[3]
+            def age = components[2].toInteger()
+            def occupationId = components[3].toInteger()
             def zipcode = components[4]
-            def user = graph.addVertex(id, 'u' + userId, label, 'user', 'gender', gender, 'age', age, 'zipcode', zipcode)
-            user.addEdge('occupation', g.V().hasLabel('occupation').has(id, 'o' + occupationId).next())
+            def userVertex = graph.addVertex(label, 'user', 'uid', 'u' + userId, 'gender', gender, 'age', age, 'zipcode', zipcode)
+
+            def occupationVertex = g.V().has('uid', 'o' + occupationId).next()
+            userVertex.addEdge('occupation', occupationVertex)
         }
 
         println 'Processing ratings.dat...'
@@ -70,14 +64,22 @@ class MovieLensParser {
         new File(dataDirectory + '/ratings.dat').eachLine {
             line ->
                 def components = line.split("::");
+                def userId = components[0].toInteger()
+                def movieId = components[1].toInteger()
+                def stars = components[2].toInteger()
+                def time = components[3].toLong()
                 // Get the user and movie by their ids to add the edge
-                def user = g.V('u' + (components[0] as Integer)).next()
-                def movie = g.V('m' + (components[1] as Integer)).next()
-                user.addEdge('rated', movie, 'stars', components[2] as Integer)
+                def userTraversal = g.V().has('uid', 'u' + userId)
+                def movieTraversal = g.V().has('uid', 'm' + movieId)
+                if (userTraversal.hasNext() && movieTraversal.hasNext()) {
+                    userTraversal.next().addEdge('rated', movieTraversal.next(), 'stars', stars, 'time', time)
+                }
         }
     }
 
     public static void load(final Graph graph, final String dataDirectory) {
+        //ToDo: Use a case statement for each database type, all will require an index
+        graph.createIndex('uid', Vertex.class)
         def start = System.currentTimeMillis()
         parse(graph, dataDirectory)
         println "Loading took (ms): " + (System.currentTimeMillis() - start)
