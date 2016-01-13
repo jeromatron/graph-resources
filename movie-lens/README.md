@@ -57,8 +57,7 @@ gremlin>
 Perhaps try to do something like find the average rating for a particular movie:
 
 ```
-g.V().has('movie', 'name', 'Toy Story').inE('rated').values('stars').mean()
-
+g.V().has('movie','name','Toy Story').inE('rated').values('stars').mean()
 ```
 
 Or get the list of genres:
@@ -105,8 +104,8 @@ unfold()
 
 Reading this from the beginning in English:
 
-> Give me all of the vertices with the movie name Die Hard.  Take a look at all those that rated it 5 stars and 
-filter them down by those whose occupation is a programmer.  Take a look at all the movies that those programmers
+> Give me the vertex with the movie name Die Hard.  Take a look at all the edges from users that rated it 5 stars and 
+filter the users down by those whose occupation is a programmer.  Take a look at all the movies that those programmers
 rated 5 stars.  Filter out 'a' or 'Die Hard' because we already know they rated that 5 stars.  Count those movies
 they also rated 5 stars, order them by the count highest to lowest, and limit it to the top ten.  Print each of the
 results on their own line.
