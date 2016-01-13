@@ -1,8 +1,8 @@
 Movie Lens
 ==========
 
-The movie lens data set will give you ratings that you can import into a graph using the included groovy script.
-The script will need be run through the gremlin shell to import and then serialize to kryo format.
+The movie lens data set gives you movies, reviewers, and their ratings which you can import into a graph using the 
+included groovy script.  The script can be run through the gremlin shell to import the data.
 
 Data set
 --------
